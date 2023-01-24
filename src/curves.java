@@ -38,6 +38,14 @@ public class curves {
     return point;
   }
 
+  public ECPoint power(ECPoint point, BigInteger i){
+    ECPoint newPoint = new ECPoint(point.getAffineX(), point.getAffineY());
+    for (BigInteger j = BigInteger.ZERO; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
+      newPoint =curves.addTwoPoints(point, this.gen);
+    }
+    return newPoint;
+  }
+
   // https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
   private static ECPoint addTwoPoints(ECPoint a, ECPoint b){
     

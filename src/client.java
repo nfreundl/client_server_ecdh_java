@@ -2,15 +2,23 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
 import java.security.spec.ECPoint;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.Random;
 import java.util.Base64.Encoder;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.lang.model.type.ErrorType;
 
 
@@ -51,12 +59,20 @@ class Client {
     cipher = Cipher.getInstance("AES/CBC");
   }
 
-  private void setKey(){
+  private SecretKey setKey() throws InvalidKeySpecException, NoSuchAlgorithmException{
     //  https://stackoverflow.com/questions/9536827/generate-key-from-string
+    // PBE stands for password-based encryption
+    SecretKeyFactory factory = SecretKeyFactory.getInstance("AES");
+    KeySpec keySpec = new PBEKeySpec(this.key.toCharArray());
+    SecretKey secretKey = factory.generateSecret(keySpec);
+    return secretKey;
   }
-  private String EncryptMessage(String message){
-    
-    cipher.init(Cipher.ENCRYPT_MODE,n);
+  private byte[] EncryptMessage(String message) throws InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+    SecretKey secretKey = this.setKey();
+    cipher.init(Cipher.ENCRYPT_MODE,secretKey);
+    byte[] encrypted = cipher.doFinal(message.getBytes());
+    System.out.println(Base64.getEncoder().encodeToString(encrypted));
+    return encrypted;
   }
 
 

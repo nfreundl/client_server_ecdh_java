@@ -2,6 +2,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
 import java.security.spec.ECPoint;
+import java.security.spec.EllipticCurve;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
@@ -73,6 +74,28 @@ class Client {
     byte[] encrypted = cipher.doFinal(message.getBytes());
     System.out.println(Base64.getEncoder().encodeToString(encrypted));
     return encrypted;
+  }
+
+  private String DecryptMessage( byte[] message) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException{
+    SecretKey secretKey = this.setKey();
+    cipher.init(Cipher.DECRYPT_MODE, secretKey);
+    
+    byte[] decrypted = cipher.doFinal(message);
+    System.out.println(Base64.getEncoder().encodeToString(message));
+    return decrypted.toString();
+    
+  }
+
+
+  private SendPublicKey(){
+    ECPoint publicPoint = this.ComputePublic();
+    byte[] buffer = curves.serializePointToString(publicPoint).getBytes();
+    Socket socket = new Socket("127.0.0.1",5000);
+    OutputStream outputStream=socket.getOutputStream();
+    outputStream.write(buffer);
+
+
+    
   }
 
 

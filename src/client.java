@@ -8,6 +8,14 @@ import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.Random;
 import java.util.Base64.Encoder;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.MessageDigest;
@@ -87,40 +95,68 @@ class Client {
   }
 
 
-  private SendPublicKey(){
+  private String SendPublicKey() throws IOException{
     ECPoint publicPoint = this.ComputePublic();
     byte[] buffer = curves.serializePointToString(publicPoint).getBytes();
     Socket socket = new Socket("127.0.0.1",5000);
     OutputStream outputStream=socket.getOutputStream();
     outputStream.write(buffer);
 
+    InputStream inputStream = socket.getInputStream();
 
+    buffer = inputStream.readAllBytes();
+    socket.close();
+    return new String(buffer);
+  }
+
+  private String ExchangeKeyWithTimeOut() throws Exception {
+    ECPoint publicPoint = this.ComputePublic();
+    byte[] buffer = curves.serializePointToString(publicPoint).getBytes();
     
+    //https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
+    
+    // ooo this is how you make an anonymous class
+    
+    Callable<String> task = new Callable<String>() {
+
+      @Override
+      public String call() throws Exception {
+        
+        Socket socket = new Socket("127.0.0.1",5000);
+        OutputStream outputStream=socket.getOutputStream();
+        outputStream.write(buffer);
+
+        InputStream inputStream = socket.getInputStream();
+
+        byte[] inputBuffer = inputStream.readAllBytes();
+        socket.close();
+        return new String(inputBuffer);
+      }
+      
+    };
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<String> result = executor.submit(task);
+    String toReturn = new String();
+    try {
+      toReturn = result.get(5, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return "";
+    }catch (Exception e){
+      throw e;
+    }
+
+    return toReturn;
+
   }
 
 
 
-  public static void main(String[]args) throws IOException{
-    
-    
-    
-    //InetSocketAddress address = new InetSocketAddress("127.0.0.1", 5000);
-    Socket socket = new Socket("127.0.0.1",5000);
-    //socket.bind(address);
-    //socket.connect(address);
-    OutputStream x=socket.getOutputStream();
-    byte[] buffer ="ping".getBytes();
-    System.out.println("send data");
-    x.write(buffer);
-    System.out.println(new String(buffer));
+  public static void main(String[]args) throws Exception{
+    Client main = new Client();
 
-    InputStream y = socket.getInputStream();
-    
-    buffer = new byte[12];
-    System.out.println("read data");
-    y.read(buffer);
-    System.out.println(new String(buffer));
-    socket.close();
+    main.ExchangeKeyWithTimeOut();
     
   }
 }

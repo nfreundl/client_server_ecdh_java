@@ -32,66 +32,13 @@ import javax.lang.model.type.ErrorType;
 
 
 
-class Client {
+class Client extends Communicator {
   
-  private BigInteger randomSecret;
-  private curves curve = new curves();
-  private ECPoint sharedSecret;
-  private String key;
-  private MessageDigest messageDigest;
-  private Cipher cipher;
+
 
 
   public Client() throws NoSuchAlgorithmException{
-    this.randomSecret = new BigInteger(curves.size(), new Random(0));
-    this.randomSecret = this.randomSecret.mod(curves.n());
-    this.messageDigest = MessageDigest.getInstance("SHA-256");
-  }
 
-  public ECPoint ComputePublic(){
-    return this.curve.GetPoint(this.randomSecret);
-  }
-
-  private  void ComputeSharedSecret(ECPoint pointFromServer) throws Exception{
-    this.sharedSecret = this.curve.power(pointFromServer, randomSecret);
-  }
-
-  private void DeriveKey(){
-    String sharedSecretString =this.sharedSecret.toString();
-    this.messageDigest.update(Byte.parseByte(sharedSecretString));
-    Encoder encoder =Base64.getEncoder();
-    this.key =encoder.encodeToString(this.messageDigest.digest());
-
-  }
-
-  private void setCipher() throws NoSuchAlgorithmException, NoSuchPaddingException{
-    cipher = Cipher.getInstance("AES/CBC");
-  }
-
-  private SecretKey setKey() throws InvalidKeySpecException, NoSuchAlgorithmException{
-    //  https://stackoverflow.com/questions/9536827/generate-key-from-string
-    // PBE stands for password-based encryption
-    SecretKeyFactory factory = SecretKeyFactory.getInstance("AES");
-    KeySpec keySpec = new PBEKeySpec(this.key.toCharArray());
-    SecretKey secretKey = factory.generateSecret(keySpec);
-    return secretKey;
-  }
-  private byte[] EncryptMessage(String message) throws InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
-    SecretKey secretKey = this.setKey();
-    cipher.init(Cipher.ENCRYPT_MODE,secretKey);
-    byte[] encrypted = cipher.doFinal(message.getBytes());
-    System.out.println(Base64.getEncoder().encodeToString(encrypted));
-    return encrypted;
-  }
-
-  private String DecryptMessage( byte[] message) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException{
-    SecretKey secretKey = this.setKey();
-    cipher.init(Cipher.DECRYPT_MODE, secretKey);
-    
-    byte[] decrypted = cipher.doFinal(message);
-    System.out.println(Base64.getEncoder().encodeToString(message));
-    return decrypted.toString();
-    
   }
 
 

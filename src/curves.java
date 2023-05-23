@@ -1,6 +1,11 @@
+package src;
+
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.spec.*;
+import java.text.MessageFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 
@@ -23,6 +28,40 @@ public class curves {
   public static BigInteger n(){
     return new BigInteger(curves.n.toByteArray());
   }
+
+  public static String serializePointToString(ECPoint ecPoint){
+    if (ecPoint.equals(ECPoint.POINT_INFINITY)){
+      return "INFINITY";
+    }else{
+      return MessageFormat.format("AFFINEX{0}AFFINEY{1}", ecPoint.getAffineX().toString(16),ecPoint.getAffineY().toString(16));
+    }
+
+  }
+
+  public static ECPoint readPointToString(String ecPoint) throws Exception{
+    if (ecPoint.equals("INFINITY")){
+      return ECPoint.POINT_INFINITY;
+    }else{
+      Pattern pattern = Pattern.compile("^AFFINEX(.*)AFFINEY(.*)$");
+      Matcher matcher = pattern.matcher((String)ecPoint);
+      if (matcher.find()){
+        String xString = matcher.group(0);
+        String yString = matcher.group(1);
+
+        BigInteger x = new BigInteger(xString, 16);
+        BigInteger y = new BigInteger(yString, 16);
+
+        return new ECPoint(x, y);
+        
+      }else{
+        throw new Exception("pattern not find");
+      }
+
+      
+    }
+
+  }
+  
   
   private  ECFieldFp  ecFieldFp ;
 
@@ -36,6 +75,14 @@ public class curves {
       point =curves.addTwoPoints(point, this.gen);
     }
     return point;
+  }
+
+  public ECPoint power(ECPoint point, BigInteger i){
+    ECPoint newPoint = new ECPoint(point.getAffineX(), point.getAffineY());
+    for (BigInteger j = BigInteger.ZERO; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
+      newPoint =curves.addTwoPoints(point, this.gen);
+    }
+    return newPoint;
   }
 
   // https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication

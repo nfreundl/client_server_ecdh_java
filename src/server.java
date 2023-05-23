@@ -1,3 +1,5 @@
+package src;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,11 +18,14 @@ class Server extends Communicator {
   }
 
   public void receiveKey() throws Exception{
-    Socket socket = new Socket("localhost", 5000);
+
+    ServerSocket serverSocket = new ServerSocket(5000, 1, InetAddress.getByName("127.0.0.1"));
+    Socket socket = serverSocket.accept();
     InputStream inputStream = socket.getInputStream();
     byte[] allBytesRead = inputStream.readAllBytes();
     ECPoint ecPoint = curves.readPointToString(new String(allBytesRead));
-
+    socket.close();
+    serverSocket.close();
     this.ComputeSharedSecret(ecPoint);
 
   }

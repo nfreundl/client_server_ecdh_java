@@ -80,7 +80,7 @@ public class curves {
   public ECPoint power(ECPoint point, BigInteger i){
     ECPoint newPoint = new ECPoint(point.getAffineX(), point.getAffineY());
     for (BigInteger j = BigInteger.ZERO; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
-      newPoint =curves.addTwoPoints(point, this.gen);
+      newPoint =curves.addTwoPoints(newPoint, this.gen);
     }
     return newPoint;
   }
@@ -88,16 +88,19 @@ public class curves {
   // https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
   private static ECPoint addTwoPoints(ECPoint a, ECPoint b){
     
-    if (a.getAffineX().mod(curves.p) == b.getAffineX().mod(curves.p)){
-      if(a == ECPoint.POINT_INFINITY){
-        return b;
-      }
+    // == does not work, use .equals (maybe because it compares two different instances of a class, not caring about members' values)
+    if(a.equals(ECPoint.POINT_INFINITY)){
+      return b;
+    }
 
-      if (b == ECPoint.POINT_INFINITY){
-        return a;
-      }
+    if (b.equals(ECPoint.POINT_INFINITY)){
+      return a;
+    }
+    
+    if (a.getAffineX().mod(curves.p).equals(b.getAffineX().mod(curves.p))){
+      
 
-      if(a.getAffineY().mod(curves.p) == b.getAffineY().mod(curves.p)){
+      if(a.getAffineY().mod(curves.p).equals(b.getAffineY().mod(curves.p))){
         return ECPoint.POINT_INFINITY;
       }
       else{

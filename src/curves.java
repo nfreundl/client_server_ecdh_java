@@ -78,11 +78,37 @@ public class curves {
   }
 
   public ECPoint power(ECPoint point, BigInteger i){
+    if( point.equals(ECPoint.POINT_INFINITY)){
+      return ECPoint.POINT_INFINITY;
+    }
     ECPoint newPoint = new ECPoint(point.getAffineX(), point.getAffineY());
     for (BigInteger j = BigInteger.ZERO; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
       newPoint =curves.addTwoPoints(newPoint, this.gen);
     }
     return newPoint;
+  }
+
+  public ECPoint power2(ECPoint point, BigInteger exponent){
+    ECPoint res = ECPoint.POINT_INFINITY;
+    // big endian
+    byte[] e = exponent.toByteArray();
+    // or is it 128
+    byte mask = (byte)-128;
+    for (byte b : e) {
+      for (int i = 0; i < 8; i++) {
+        // double 
+        res = addTwoPoints(res, res);
+        
+        // if the leftmost bit is set to  one
+        if ((b & mask) == mask){
+          //add
+          res = addTwoPoints(res, point);
+        };
+        
+      } 
+    }
+
+    return res;
   }
 
   // https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication

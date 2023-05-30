@@ -1,0 +1,31 @@
+package src.test;
+
+import java.math.BigInteger;
+import java.security.spec.ECPoint;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import src.curves;
+
+public class curvesTest {
+  
+  @Test
+  public  void ComparePower(){
+
+    curves curve =new curves();
+    ECPoint generator =curve.GetPoint(new BigInteger("1"));
+
+    ECPoint res1 = curve.power(generator,new BigInteger("100"));
+    ECPoint res2 = curve.power(generator,new BigInteger("100"));
+
+
+    boolean isEqual = res1.equals(res2);
+
+
+
+
+
+    Assert.assertEquals(isEqual,isEqual);
+  }
+}

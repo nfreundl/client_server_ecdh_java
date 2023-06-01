@@ -14,10 +14,10 @@ public class curvesTest {
   public  void ComparePower(){
 
     curves curve =new curves();
-    ECPoint generator =curve.GetPoint(new BigInteger("1"));
+    ECPoint generator =curve.getGenerator();
 
     ECPoint res1 = curve.power(generator,new BigInteger("100"));
-    ECPoint res2 = curve.power(generator,new BigInteger("100"));
+    ECPoint res2 = curve.power2(generator,new BigInteger("100"));
 
 
     boolean isEqual = res1.equals(res2);

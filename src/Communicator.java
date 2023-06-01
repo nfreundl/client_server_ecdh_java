@@ -32,7 +32,7 @@ public abstract class Communicator  {
   }
 
   protected  void ComputeSharedSecret(ECPoint pointFromServer) throws Exception{
-    this.sharedSecret = this.curve.power(pointFromServer, randomSecret);
+    this.sharedSecret = this.curve.power2(pointFromServer, randomSecret);
   }
 
   private void DeriveKey(){
@@ -44,8 +44,16 @@ public abstract class Communicator  {
   }
 
   public Communicator() throws NoSuchAlgorithmException{
-    this.randomSecret = new BigInteger(curves.size(), new Random(0));
-    this.randomSecret = this.randomSecret.mod(curves.n());
+    System.out.println("setting the random secret");
+    this.randomSecret = new BigInteger(curves.size(), new Random());
+    System.out.printf("random secret %s\n", randomSecret.toString(10));
+    while (this.randomSecret.equals(BigInteger.ZERO) || this.randomSecret.signum() < 0 || this.randomSecret.compareTo(curves.n()) >= 0) {
+      
+      this.randomSecret = new BigInteger(curves.size(), new Random());
+      System.out.printf("random secret %s\n", randomSecret.toString(10));
+    }
+    System.out.println("random secret set");
+
     this.messageDigest = MessageDigest.getInstance("SHA-256");
   }
   private void setCipher() throws NoSuchAlgorithmException, NoSuchPaddingException{

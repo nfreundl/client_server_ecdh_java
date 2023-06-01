@@ -59,7 +59,9 @@ class Client extends Communicator {
   }
 
   private String ExchangeKeyWithTimeOut() throws Exception {
+    System.out.println("computing public key");
     ECPoint publicPoint = this.ComputePublic();
+    System.out.println("public key computed");
     byte[] buffer = curves.serializePointToString(publicPoint).getBytes();
     
     //https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread

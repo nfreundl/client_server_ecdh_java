@@ -66,23 +66,51 @@ public class curves {
   private  ECFieldFp  ecFieldFp ;
 
   private ECPoint gen;
-  // for info, this is power in the sense of group theory, in other context you could call that a scalar multiplication
+  
+  public ECPoint getGenerator(){
+    ECPoint newPoint = new ECPoint(this.gen.getAffineX(), this.gen.getAffineY());
+    return newPoint;
+  }
+
   private  ECPoint power(BigInteger i){
-    ECPoint point = this.gen;
+
     
-    // do double-and-add, this will save some (a lot of ?) time
-    for (BigInteger j = BigInteger.ZERO; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
-      point =curves.addTwoPoints(point, this.gen);
-    }
-    return point;
+    return this.power(this.gen,i);
   }
 
   public ECPoint power(ECPoint point, BigInteger i){
+    // for info, this is power in the sense of group theory, in other context you could call that a scalar multiplication
+    if( point.equals(ECPoint.POINT_INFINITY)){
+      return ECPoint.POINT_INFINITY;
+    }
     ECPoint newPoint = new ECPoint(point.getAffineX(), point.getAffineY());
     for (BigInteger j = BigInteger.ZERO; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
       newPoint =curves.addTwoPoints(newPoint, this.gen);
     }
     return newPoint;
+  }
+
+  public ECPoint power2(ECPoint point, BigInteger exponent){
+    ECPoint res = ECPoint.POINT_INFINITY;
+    // big endian
+    byte[] e = exponent.toByteArray();
+    // or is it 128
+    byte mask = (byte)-128;
+    for (byte b : e) {
+      for (int i = 0; i < 8; i++) {
+        // double 
+        res = addTwoPoints(res, res);
+        
+        // if the leftmost bit is set to  one
+        if ((b & mask) == mask){
+          //add
+          res = addTwoPoints(res, point);
+        };
+        
+      } 
+    }
+
+    return res;
   }
 
   // https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
@@ -101,9 +129,7 @@ public class curves {
       
 
       if(a.getAffineY().mod(curves.p).equals(b.getAffineY().mod(curves.p))){
-        return ECPoint.POINT_INFINITY;
-      }
-      else{
+        
         BigInteger dividendum = ((a.getAffineX().modPow(curves.p, BigInteger.TWO)).multiply(new BigInteger("3",16)).add(curves.a)).mod(curves.p);
         BigInteger divisor = (a.getAffineY().multiply(BigInteger.TWO)).mod(curves.p);
         BigInteger lambda = dividendum.multiply(divisor.modInverse(curves.p));
@@ -112,6 +138,10 @@ public class curves {
         BigInteger cy =  a.getAffineY().subtract(lambda.multiply(cx.subtract(a.getAffineX())));
 
         return new ECPoint(cx.mod(curves.p), cy.mod(curves.p));
+      }
+      // if the xs  are the same, but not the ys, it means we have the inverse of the point (in the context of an additive group, we should call this opposite)
+      else{
+        return ECPoint.POINT_INFINITY;
       }
     }
 
@@ -178,7 +208,7 @@ public class curves {
 
   public ECPoint GetPoint(BigInteger i){
     BigInteger remainder = i.mod(curves.n);
-    return this.power(remainder);
+    return this.power2(this.gen,remainder);
   }
 /*
   public ECPoint scalarMultiplication(){

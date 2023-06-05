@@ -64,6 +64,7 @@ class Client extends Communicator {
     System.out.println("public key computed");
     byte[] buffer = curves.serializePointToString(publicPoint).getBytes();
     
+    
     //https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
     
     // ooo this is how you make an anonymous class
@@ -76,6 +77,8 @@ class Client extends Communicator {
         Socket socket = new Socket("127.0.0.1",5000);
         OutputStream outputStream=socket.getOutputStream();
         outputStream.write(buffer);
+        socket.close();
+        socket = new Socket("127.0.0.1",5000);
 
         InputStream inputStream = socket.getInputStream();
 

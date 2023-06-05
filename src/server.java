@@ -23,9 +23,11 @@ class Server extends Communicator {
     Socket socket = serverSocket.accept();
     InputStream inputStream = socket.getInputStream();
     byte[] allBytesRead = inputStream.readAllBytes();
-    ECPoint ecPoint = curves.readPointToString(new String(allBytesRead));
+
     socket.close();
     serverSocket.close();
+    ECPoint ecPoint = curves.readPointToString(new String(allBytesRead));
+
     this.ComputeSharedSecret(ecPoint);
 
   }

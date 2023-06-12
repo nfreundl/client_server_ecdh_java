@@ -1,12 +1,14 @@
-package src.test;
 
+package ecdh;
 import java.math.BigInteger;
 import java.security.spec.ECPoint;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import src.curves;
+
+
+
 
 public class curvesTest {
   

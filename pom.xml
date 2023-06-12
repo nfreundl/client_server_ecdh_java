@@ -1,0 +1,43 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <version>0.0</version>
+  <groupId>my-hobby-group-id</groupId>
+  <artifactId>client-server-ecdh</artifactId>
+  <build>
+      <!-- sourceDirectory>./src</sourceDirectory -->
+      <!-- testSourceDirectory>./src/test</testSourceDirectory-->
+  </build>
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+  </properties>
+  <dependencies>
+      <!-- https://mvnrepository.com/artifact/junit/junit-dep -->
+    <!-- dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>org.junit</artifactId>
+        <version>3.8.2</version>
+
+
+    </dependency -->
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+      
+
+  </dependencies>
+  <repositories>
+    <repository>
+      <id>openmind-onlinet</id>
+      <url>https://repository.openmindonline.it/</url>
+    </repository>
+    <repository>
+      <id>maven-artifact</id>
+      <url>https://mvnrepository.com/artifact/</url>
+    </repository>
+  </repositories>
+</project>

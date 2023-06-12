@@ -1,4 +1,4 @@
-package src;
+package ecdh;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;

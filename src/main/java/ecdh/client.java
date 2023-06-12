@@ -1,4 +1,4 @@
-package src;
+package ecdh;
 
 import java.io.*;
 import java.math.BigInteger;

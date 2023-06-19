@@ -32,23 +32,17 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.lang.model.type.ErrorType;
 
-
-
 class Client extends Communicator {
-  
 
-
-
-  public Client() throws NoSuchAlgorithmException{
+  public Client() throws NoSuchAlgorithmException {
 
   }
 
-
-  private String SendPublicKey() throws IOException{
+  private String SendPublicKey() throws IOException {
     ECPoint publicPoint = this.ComputePublic();
     byte[] buffer = curves.serializePointToString(publicPoint).getBytes();
-    Socket socket = new Socket("127.0.0.1",5000);
-    OutputStream outputStream=socket.getOutputStream();
+    Socket socket = new Socket("127.0.0.1", 5000);
+    OutputStream outputStream = socket.getOutputStream();
     outputStream.write(buffer);
 
     InputStream inputStream = socket.getInputStream();
@@ -63,30 +57,36 @@ class Client extends Communicator {
     ECPoint publicPoint = this.ComputePublic();
     System.out.println("public key computed");
     byte[] buffer = curves.serializePointToString(publicPoint).getBytes();
-    
-    
-    //https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
-    
+
+    // https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
+
     // ooo this is how you make an anonymous class
-    
+
     Callable<String> task = new Callable<String>() {
 
       @Override
       public String call() throws Exception {
-        
-        Socket socket = new Socket("127.0.0.1",5000);
-        OutputStream outputStream=socket.getOutputStream();
+
+        Socket socket = new Socket("127.0.0.1", 5000);
+        OutputStream outputStream = socket.getOutputStream();
         outputStream.write(buffer);
         socket.close();
-        socket = new Socket("127.0.0.1",5000);
 
+        while (true) {
+          try {
+            socket = new Socket("127.0.0.1", 5000);
+          } catch (IOException e) {
+            continue;
+          }
+          break;
+        }
         InputStream inputStream = socket.getInputStream();
 
         byte[] inputBuffer = inputStream.readAllBytes();
         socket.close();
         return new String(inputBuffer);
       }
-      
+
     };
     ExecutorService executor = Executors.newSingleThreadExecutor();
     Future<String> result = executor.submit(task);
@@ -97,7 +97,7 @@ class Client extends Communicator {
       // TODO Auto-generated catch block
       e.printStackTrace();
       return "";
-    }catch (Exception e){
+    } catch (Exception e) {
       throw e;
     }
 
@@ -105,12 +105,10 @@ class Client extends Communicator {
 
   }
 
-
-
-  public static void main(String[]args) throws Exception{
+  public static void main(String[] args) throws Exception {
     Client main = new Client();
 
     main.ExchangeKeyWithTimeOut();
-    
+
   }
 }

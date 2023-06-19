@@ -19,7 +19,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-public abstract class Communicator  {
+public abstract class Communicator {
   protected BigInteger randomSecret;
   protected curves curve = new curves();
   private ECPoint sharedSecret;
@@ -27,28 +27,29 @@ public abstract class Communicator  {
   private MessageDigest messageDigest;
   private Cipher cipher;
 
-  public ECPoint ComputePublic(){
+  public ECPoint ComputePublic() {
     return this.curve.GetPoint(this.randomSecret);
   }
 
-  protected  void ComputeSharedSecret(ECPoint pointFromServer) throws Exception{
+  protected void ComputeSharedSecret(ECPoint pointFromServer) throws Exception {
     this.sharedSecret = this.curve.power2(pointFromServer, randomSecret);
   }
 
-  private void DeriveKey(){
-    String sharedSecretString =this.sharedSecret.toString();
+  private void DeriveKey() {
+    String sharedSecretString = this.sharedSecret.toString();
     this.messageDigest.update(Byte.parseByte(sharedSecretString));
-    Encoder encoder =Base64.getEncoder();
-    this.key =encoder.encodeToString(this.messageDigest.digest());
+    Encoder encoder = Base64.getEncoder();
+    this.key = encoder.encodeToString(this.messageDigest.digest());
 
   }
 
-  public Communicator() throws NoSuchAlgorithmException{
+  public Communicator() throws NoSuchAlgorithmException {
     System.out.println("setting the random secret");
     this.randomSecret = new BigInteger(curves.size(), new Random());
     System.out.printf("random secret %s\n", randomSecret.toString(10));
-    while (this.randomSecret.equals(BigInteger.ZERO) || this.randomSecret.signum() < 0 || this.randomSecret.compareTo(curves.n()) >= 0) {
-      
+    while (this.randomSecret.equals(BigInteger.ZERO) || this.randomSecret.signum() < 0
+        || this.randomSecret.compareTo(curves.n()) >= 0) {
+
       this.randomSecret = new BigInteger(curves.size(), new Random());
       System.out.printf("random secret %s\n", randomSecret.toString(10));
     }
@@ -56,33 +57,37 @@ public abstract class Communicator  {
 
     this.messageDigest = MessageDigest.getInstance("SHA-256");
   }
-  private void setCipher() throws NoSuchAlgorithmException, NoSuchPaddingException{
+
+  private void setCipher() throws NoSuchAlgorithmException, NoSuchPaddingException {
     cipher = Cipher.getInstance("AES/CBC");
   }
 
-  private SecretKey setKey() throws InvalidKeySpecException, NoSuchAlgorithmException{
-    //  https://stackoverflow.com/questions/9536827/generate-key-from-string
+  private SecretKey setKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+    // https://stackoverflow.com/questions/9536827/generate-key-from-string
     // PBE stands for password-based encryption
     SecretKeyFactory factory = SecretKeyFactory.getInstance("AES");
     KeySpec keySpec = new PBEKeySpec(this.key.toCharArray());
     SecretKey secretKey = factory.generateSecret(keySpec);
     return secretKey;
   }
-  private byte[] EncryptMessage(String message) throws InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+
+  private byte[] EncryptMessage(String message) throws InvalidKeySpecException, NoSuchAlgorithmException,
+      InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
     SecretKey secretKey = this.setKey();
-    cipher.init(Cipher.ENCRYPT_MODE,secretKey);
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey);
     byte[] encrypted = cipher.doFinal(message.getBytes());
     System.out.println(Base64.getEncoder().encodeToString(encrypted));
     return encrypted;
   }
 
-  private String DecryptMessage( byte[] message) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException{
+  private String DecryptMessage(byte[] message) throws InvalidKeyException, InvalidKeySpecException,
+      NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException {
     SecretKey secretKey = this.setKey();
     cipher.init(Cipher.DECRYPT_MODE, secretKey);
-    
+
     byte[] decrypted = cipher.doFinal(message);
     System.out.println(Base64.getEncoder().encodeToString(message));
     return decrypted.toString();
-    
+
   }
 }

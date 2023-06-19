@@ -9,15 +9,13 @@ import java.security.spec.ECPoint;
 
 import javax.print.event.PrintEvent;
 
-
 class Server extends Communicator {
 
-  
-  public Server() throws NoSuchAlgorithmException{
+  public Server() throws NoSuchAlgorithmException {
 
   }
 
-  public void receiveKey() throws Exception{
+  public void receiveKey() throws Exception {
 
     ServerSocket serverSocket = new ServerSocket(5000, 1, InetAddress.getByName("127.0.0.1"));
     Socket socket = serverSocket.accept();
@@ -32,16 +30,41 @@ class Server extends Communicator {
 
   }
 
-  public static void main(String[]args) throws Exception{
-
+  public static void main(String[] args) throws Exception {
 
     while (true) {
-      Server server =new Server();
+      Server server = new Server();
 
       server.receiveKey();
-      
+      ECPoint ecpoint = server.ComputePublic();
+      byte[] buffer = curves.serializePointToString(ecpoint).getBytes();
+
+      Runnable runnable = new Runnable() {
+
+        @Override
+        public void run() {
+
+          try {
+            ServerSocket serverSocket = new ServerSocket(5000, 1, InetAddress.getByName("127.0.0.1"));
+
+            Socket socket = serverSocket.accept();
+
+            OutputStream outputStream = socket.getOutputStream();
+            outputStream.write(buffer);
+            outputStream.close();
+
+            socket.close();
+            serverSocket.close();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      };
+
+      Thread thread = new Thread(runnable);
+      thread.start();
     }
 
   }
-  
+
 }

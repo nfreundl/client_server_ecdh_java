@@ -52,6 +52,41 @@ class Client extends Communicator {
     return new String(buffer);
   }
 
+  private void SendMessage(byte[] cipher) throws Exception {
+    Callable<Void> callable = new Callable<Void>() {
+
+      @Override
+      public Void call() throws Exception {
+        Socket socket;
+        while (true) {
+          try {
+            socket = new Socket("127.0.0.1", 5000);
+          } catch (IOException e) {
+            continue;
+          }
+          break;
+        }
+        OutputStream outputStream = socket.getOutputStream();
+        outputStream.write(cipher);
+        socket.close();
+        return null;
+      }
+    };
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<Void>  ret = executor.submit(callable);
+    try{
+      ret.get(5, TimeUnit.SECONDS);
+
+    } catch (TimeoutException e){
+      e.printStackTrace();
+      return;
+    } catch (Exception e){
+      throw e;
+    }
+
+  }
+
   private String ExchangeKeyWithTimeOut() throws Exception {
     System.out.println("computing public key");
     ECPoint publicPoint = this.ComputePublic();
@@ -106,9 +141,13 @@ class Client extends Communicator {
   }
 
   public static void main(String[] args) throws Exception {
+
     Client main = new Client();
 
     main.ExchangeKeyWithTimeOut();
+
+    byte[] cipher = main.EncryptMessage("ping");
+    main.SendMessage(cipher);
 
   }
 }

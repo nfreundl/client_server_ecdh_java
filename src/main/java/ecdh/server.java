@@ -30,6 +30,17 @@ class Server extends Communicator {
 
   }
 
+  private byte[] ReceiveMessage() throws UnknownHostException, IOException{
+    ServerSocket serverSocket = new ServerSocket(5000, 1, InetAddress.getByName("127.0.0.1"));
+    Socket socket = serverSocket.accept();
+    InputStream inputStream = socket.getInputStream();
+    byte[] allBytesRead = inputStream.readAllBytes();
+
+    socket.close();
+    serverSocket.close();
+    return allBytesRead;
+  }
+
   public static void main(String[] args) throws Exception {
 
     while (true) {
@@ -55,6 +66,11 @@ class Server extends Communicator {
 
             socket.close();
             serverSocket.close();
+
+            byte[] cipher = server.ReceiveMessage();
+            String message =server.DecryptMessage(cipher);
+            System.out.printf("received message: %s \n", message);
+
           } catch (Exception e) {
             e.printStackTrace();
           }

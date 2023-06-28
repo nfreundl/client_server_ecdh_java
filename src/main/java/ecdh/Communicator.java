@@ -10,7 +10,6 @@ import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.Random;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -71,7 +70,7 @@ public abstract class Communicator {
     return secretKey;
   }
 
-  private byte[] EncryptMessage(String message) throws InvalidKeySpecException, NoSuchAlgorithmException,
+  public byte[] EncryptMessage(String message) throws InvalidKeySpecException, NoSuchAlgorithmException,
       InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
     SecretKey secretKey = this.setKey();
     cipher.init(Cipher.ENCRYPT_MODE, secretKey);
@@ -80,7 +79,7 @@ public abstract class Communicator {
     return encrypted;
   }
 
-  private String DecryptMessage(byte[] message) throws InvalidKeyException, InvalidKeySpecException,
+  public String DecryptMessage(byte[] message) throws InvalidKeyException, InvalidKeySpecException,
       NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException {
     SecretKey secretKey = this.setKey();
     cipher.init(Cipher.DECRYPT_MODE, secretKey);

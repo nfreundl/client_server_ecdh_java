@@ -80,9 +80,12 @@ public class curves {
     if (point.equals(ECPoint.POINT_INFINITY)) {
       return ECPoint.POINT_INFINITY;
     }
+    if (i.equals(BigInteger.ZERO)){
+      return ECPoint.POINT_INFINITY;
+    }
     ECPoint newPoint = new ECPoint(point.getAffineX(), point.getAffineY());
-    for (BigInteger j = BigInteger.ZERO; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
-      newPoint = curves.addTwoPoints(newPoint, this.gen);
+    for (BigInteger j = BigInteger.ONE; j.compareTo(i) == -1; j = j.add(BigInteger.ONE)) {
+      newPoint = curves.addTwoPoints(newPoint, point);
     }
     return newPoint;
   }
@@ -92,8 +95,10 @@ public class curves {
     // big endian
     byte[] e = exponent.toByteArray();
     // or is it 128
-    byte mask = (byte) -128;
+    
     for (byte b : e) {
+      // issue with the two's complement, 128 turns into -128 and makes a big line of 1's
+      byte mask = (byte) -128;
       for (int i = 0; i < 8; i++) {
         // double
         res = addTwoPoints(res, res);
@@ -104,7 +109,11 @@ public class curves {
           res = addTwoPoints(res, point);
         }
         ;
-
+        if (mask == (byte)128){
+          mask = (byte) 64;
+        } else {
+          mask = (byte)(mask>>1);
+        }
       }
     }
 

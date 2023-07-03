@@ -11,20 +11,41 @@ import org.junit.Test;
 
 
 public class curvesTest {
-  
-  @Test
-  public  void ComparePower(){
 
+  void comparePowerHelper(BigInteger exponent){
     curves curve =new curves();
     ECPoint generator =curve.getGenerator();
 
-    ECPoint res1 = curve.power(generator,new BigInteger("100"));
-    ECPoint res2 = curve.power2(generator,new BigInteger("100"));
+    ECPoint res1 = curve.power(generator,exponent);
+    ECPoint res2 = curve.power2(generator,exponent);
 
     boolean isEqual = res1.equals(res2);
 
 
     Assert.assertEquals(true,isEqual);
+  }
+  
+  @Test
+  public  void ComparePower1(){
+    this.comparePowerHelper(BigInteger.ONE);
+    
+  }
+  @Test
+  public  void ComparePower2(){
+    this.comparePowerHelper(BigInteger.TWO);
+    
+  }
+  @Test
+  public  void ComparePower3(){
+    this.comparePowerHelper(new BigInteger("3"));
+  }
+  @Test
+  public  void ComparePower4(){
+    this.comparePowerHelper(new BigInteger("4"));
+  }
+  @Test
+  public  void ComparePower10(){
+    this.comparePowerHelper(BigInteger.TEN);
   }
 
   @Test

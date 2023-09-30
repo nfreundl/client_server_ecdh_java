@@ -1,5 +1,7 @@
 
 package ecdh;
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 import java.security.spec.ECPoint;
 
@@ -11,6 +13,26 @@ import org.junit.Test;
 
 
 public class curvesTest {
+
+  @Test
+  public void CheckPointAdditions(){
+    curves curve =  new curves();
+    ECPoint one = curve.getGenerator();
+    ECPoint two = curves.addTwoPoints(one,one);
+    ECPoint threeFirstWay = curves.addTwoPoints(two,one);
+    ECPoint threeSecondWay = curves.addTwoPoints(one,two);
+    
+    boolean isEqual = threeFirstWay.equals(threeSecondWay);
+    assertEquals(true, isEqual);
+
+    ECPoint fourFirstWay = curves.addTwoPoints(threeFirstWay, one);
+    ECPoint fourSecondtWay = curves.addTwoPoints(two, two);
+    
+    isEqual = fourFirstWay.equals(fourSecondtWay);
+    assertEquals(true,isEqual);
+
+
+  }
 
   void comparePowerHelper(BigInteger exponent){
     curves curve =new curves();

@@ -121,7 +121,7 @@ public class curves {
   }
 
   // https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
-  private static ECPoint addTwoPoints(ECPoint a, ECPoint b) {
+  public static ECPoint addTwoPoints(ECPoint a, ECPoint b) {
 
     // == does not work, use .equals (maybe because it compares two different
     // instances of a class, not caring about members' values)
@@ -137,13 +137,13 @@ public class curves {
 
       if (a.getAffineY().mod(curves.p).equals(b.getAffineY().mod(curves.p))) {
 
-        BigInteger dividendum = ((a.getAffineX().modPow(curves.p, BigInteger.TWO)).multiply(new BigInteger("3", 16))
+        BigInteger dividendum = ((a.getAffineX().modPow(BigInteger.TWO, curves.p)).multiply(new BigInteger("3", 16))
             .add(curves.a)).mod(curves.p);
         BigInteger divisor = (a.getAffineY().multiply(BigInteger.TWO)).mod(curves.p);
         BigInteger lambda = dividendum.multiply(divisor.modInverse(curves.p));
 
-        BigInteger cx = lambda.modPow(curves.p, BigInteger.TWO).subtract(a.getAffineX().multiply(BigInteger.TWO));
-        BigInteger cy = a.getAffineY().subtract(lambda.multiply(cx.subtract(a.getAffineX())));
+        BigInteger cx = lambda.modPow(BigInteger.TWO, curves.p).subtract(a.getAffineX().multiply(BigInteger.TWO));
+        BigInteger cy = (lambda.multiply(a.getAffineX().subtract(cx))).subtract(a.getAffineY());
 
         return new ECPoint(cx.mod(curves.p), cy.mod(curves.p));
       }
@@ -164,7 +164,7 @@ public class curves {
     BigInteger lambda = (by.subtract(ay)).multiply(divisor);
     lambda = lambda.mod(curves.p);
 
-    BigInteger cx = (lambda.modPow(curves.p, BigInteger.TWO).subtract(ax)).subtract(bx);
+    BigInteger cx = (lambda.modPow(BigInteger.TWO, curves.p).subtract(ax)).subtract(bx);
     cx = cx.mod(curves.p);
 
     BigInteger cy = (lambda.multiply(ax.subtract(cx))).subtract(ay);
